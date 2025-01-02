@@ -1,7 +1,9 @@
 package me.srrapero720.dimthread.gamerule;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import me.srrapero720.dimthread.mixin.impl.GameRuleTypeInvoker;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.GameRules;
 
 import java.util.function.BiConsumer;
@@ -61,11 +63,12 @@ public class IntRule extends GameRule<GameRules.IntegerValue> {
         }
 
         private GameRules.Type<GameRules.IntegerValue> create(int def, int min, int max, BiConsumer<MinecraftServer, GameRules.IntegerValue> changedCallback) {
-            return new GameRules.Type<>(
+            return GameRuleTypeInvoker.invokeInit(
                 () -> IntegerArgumentType.integer(min, max),
                 type -> new RestrictedIntegerValue(type, def, min, max),
                 changedCallback,
-                GameRules.GameRuleTypeVisitor::visitInteger
+                GameRules.GameRuleTypeVisitor::visitInteger,
+                    FeatureFlagSet.of()
             );
         }
 

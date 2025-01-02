@@ -7,6 +7,7 @@
   "refmap": "${modid}.${mixin_refmap_suffix}",
   "mixins": [
     "EntityMixin",
+    "GameRuleTypeInvoker",
     "ILevelMixin",
     "IntegerValueAccessor",
     "LevelMixin",

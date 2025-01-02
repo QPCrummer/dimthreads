@@ -9,10 +9,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
+import net.minecraft.world.level.redstone.Orientation;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 
@@ -27,23 +28,35 @@ public abstract class RedstoneWireBlockMixin {
 	/**
 	 * {@code RedstoneWireBlock#wiresGivePower} is not thread-safe since it's a global flag. To ensure
 	 * no interference between threads, the field is replaced with this thread local one.
-	 *
-	 * @see RedStoneWireBlock#isSignalSource(BlockState)
 	 * */
 	@Unique
 	private final ThreadLocal<Boolean> dimThreads$wiresGivePowerSafe = ThreadLocal.withInitial(() -> true);
 
-	@Inject(method = "calculateTargetStrength", at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/world/level/Level;getBestNeighborSignal(Lnet/minecraft/core/BlockPos;)I",
+	@Inject(method = "updatePowerStrength", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/level/redstone/RedstoneWireEvaluator;updatePowerStrength(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
 			shift = At.Shift.BEFORE))
-	private void getReceivedRedstonePowerBefore(Level world, BlockPos pos, CallbackInfoReturnable<Integer> ci) {
+	private void getReceivedRedstonePowerBefore(Level level, BlockPos blockPos, BlockState blockState, Orientation orientation, boolean bl, CallbackInfo ci) {
 		this.dimThreads$wiresGivePowerSafe.set(false);
 	}
 
-	@Inject(method = "calculateTargetStrength", at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/world/level/Level;getBestNeighborSignal(Lnet/minecraft/core/BlockPos;)I",
+	@Inject(method = "updatePowerStrength", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/level/redstone/ExperimentalRedstoneWireEvaluator;updatePowerStrength(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
+			shift = At.Shift.BEFORE))
+	private void getReceivedRedstonePowerBeforeExp(Level level, BlockPos blockPos, BlockState blockState, Orientation orientation, boolean bl, CallbackInfo ci) {
+		this.dimThreads$wiresGivePowerSafe.set(false);
+	}
+
+	@Inject(method = "updatePowerStrength", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/level/redstone/RedstoneWireEvaluator;updatePowerStrength(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
 			shift = At.Shift.AFTER))
-	private void getReceivedRedstonePowerAfter(Level world, BlockPos pos, CallbackInfoReturnable<Integer> ci) {
+	private void getReceivedRedstonePowerAfter(Level level, BlockPos blockPos, BlockState blockState, Orientation orientation, boolean bl, CallbackInfo ci) {
+		this.dimThreads$wiresGivePowerSafe.set(true);
+	}
+
+	@Inject(method = "updatePowerStrength", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/level/redstone/ExperimentalRedstoneWireEvaluator;updatePowerStrength(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
+			shift = At.Shift.AFTER))
+	private void getReceivedRedstonePowerAfterExp(Level level, BlockPos blockPos, BlockState blockState, Orientation orientation, boolean bl, CallbackInfo ci) {
 		this.dimThreads$wiresGivePowerSafe.set(true);
 	}
 
