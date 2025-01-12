@@ -27,7 +27,7 @@ public abstract class EntityMixin {
      * For example, the entity list is not thread-safe and modifying it from multiple threads will cause
      * a crash. Additionally, loading chunks from another thread will cause a deadlock in the server chunk manager.
      */
-    @Inject(method = "teleport", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "teleport", at = @At("HEAD"), cancellable = true)
     public void moveToWorld(TeleportTransition teleportTransition, CallbackInfoReturnable<Entity> cir) {
         if (!DimThread.MANAGER.isActive(teleportTransition.newLevel().getServer())) return;
 

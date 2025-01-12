@@ -18,7 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ServerChunkCacheMixin extends ChunkSource implements IMutableMainThread {
 	@Shadow Thread mainThread;
 	@Shadow @Final public ChunkMap chunkMap;
-	@Shadow @Final ServerLevel level;
+	@Shadow @Final
+    private ServerLevel level;
 
 	@Override
 	@Unique

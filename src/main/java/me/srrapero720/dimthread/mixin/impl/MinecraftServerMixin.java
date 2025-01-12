@@ -37,7 +37,7 @@ public abstract class MinecraftServerMixin {
      * @see MinecraftServerMixin#tickWorlds(BooleanSupplier, CallbackInfo)
      */
     @WrapOperation(method = "tickChildren", at = @At(value = "INVOKE",
-        target = "Lnet/minecraft/server/MinecraftServer;getAllLevels()Ljava/lang/Iterable;", remap = false))
+        target = "Lnet/minecraft/server/MinecraftServer;getAllLevels()Ljava/lang/Iterable;"))
     public Iterable<ServerLevel> tickWorlds(MinecraftServer instance, Operation<Iterable<ServerLevel>> original) {
         return DimThread.MANAGER.isActive((MinecraftServer) (Object) this) ? new ArrayList<>() : original.call(instance);
     }
@@ -46,7 +46,7 @@ public abstract class MinecraftServerMixin {
      * Distributes world ticking over (at least) 3 worker threads (one for each dimension) and waits until
      * they are all complete.
      */
-    @Inject(method = "tickChildren", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z", ordinal = 0, remap = false))
+    @Inject(method = "tickChildren", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z", ordinal = 0))
     public void tickWorlds(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         if (!DimThread.MANAGER.isActive((MinecraftServer) (Object) this)) return;
 
